@@ -1,0 +1,86 @@
+<!--
+
+  ORVIBO- config node which represents the device. Holds ip address
+
+-->
+<script type="text/javascript">
+  RED.nodes.registerType("orvibo", {
+    category: "config",
+    defaults: {
+      name: {value:"", required:false},
+      ip: {value:"", required:true},
+      mac: {value:"", required:true}
+    },
+    label: function() {
+      return this.name ? this.name : 'Orvibo AllOne';
+    }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="orvibo">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" />
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-ip"><i class="fa fa-globe"></i> Address</label>
+        <input type="text" id="node-config-input-ip" placeholder="192.168.0.123" />
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-mac"><i class="fa fa-globe"></i> Address</label>
+        <input type="text" id="node-config-input-mac" placeholder="accf2353773a" />
+    </div>
+    <div class="form-tips">
+      <p>You need to configure the IP and MAC address of the Orvibo AllOne here.</p>
+    </div>
+</script>
+
+<!--
+
+  ORVIBO - "emitir" node
+
+-->
+<script type="text/javascript">
+  RED.nodes.registerType("orvibo-emitir", {
+    category: "devices",
+    color: "#87E980",
+    icon: "bridge-dash.png",
+    defaults: {
+      device: {type:"orvibo", required:true},
+      name: {value:"", required:false},
+      code: {value:"", required:false}
+    },
+    inputs:1,
+    // outputs:1,
+    paletteLabel: "Orvibo Emit IR",
+    align: 'right',
+    label: function() {
+      return this.name ? this.name : "Emit IR";
+    }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="orvibo-emitir">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-keyboard-o"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-code"><i class="fa fa-tasks"></i> Code</label>
+        <input type="text" id="node-input-code" style="!important">
+    </div>
+    <div class="form-tips" id="node-input-code" style="margin-top:5px margin-bottom:5px">
+        <div>
+          Enter code to send
+        </div>
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="orvibo-emitir">
+   <p>Sends codes via Orvibo AllOnes</p>
+   <p>Enter the code to send in the node settings or the msg.payload.</p>
+</script>
