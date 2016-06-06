@@ -48,7 +48,7 @@ o.on("queried", function(device, table) {
       })
     }, 5000)
   } else if (device.type == "AllOne") { // If we've got an AllOne instead
-    console.log('+++++++ FOUND ALL ONE!!!', device);
+    console.log('FOUND ALL ONE:', device);
     o.enterLearningMode(device) // Put it into learning mode
   }
 })
@@ -58,7 +58,9 @@ o.on("statechangeconfirmed", function(device) {
 })
 
 o.on("ircode", function(device, ir) { // We've learned some IR
-  console.log('>>>>>>> IR CODE >>>>>>>\n', device, '\n', ir)
+  console.log('<<<<<<<< IR CODE >>>>>>>>');
+  console.log('DEVICE:', device);
+  console.log('IR CODE:', ir)
 })
 
 o.listen()
