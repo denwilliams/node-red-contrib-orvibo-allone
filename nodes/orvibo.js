@@ -2,6 +2,8 @@ var Orvibo = require('node-orvibo');
 var TEN_MINS = 600000;
 
 function registerOrviboNodes(RED) {
+  var orvibo = new Orvibo();
+  orvibo.listen();
 
   /* ---------------------------------------------------------------------------
    * CONFIG node
@@ -15,7 +17,6 @@ function registerOrviboNodes(RED) {
     this.name = config.name;
 
     // Config node state
-    var orvibo = new Orvibo();
     var device = {
       macAddress: config.mac,
       macPadding: '202020202020',
@@ -26,10 +27,8 @@ function registerOrviboNodes(RED) {
       icon: '00'
     };
 
-    orvibo.listen();
     orvibo.addDevice(device);
     orvibo.subscribe(device);
-
 
     subscriber = setInterval(function() {
       orvibo.subscribe(device);
