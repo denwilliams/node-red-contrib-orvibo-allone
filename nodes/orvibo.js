@@ -9,6 +9,8 @@ function registerOrviboNodes(RED) {
   function OrviboNodeConfig(config) {
     RED.nodes.createNode(this, config);
 
+    var subscriber;
+
     // Configuration options passed by Node Red
     this.name = config.name;
 
@@ -24,7 +26,12 @@ function registerOrviboNodes(RED) {
       icon: '00'
     };
 
-    var subscriber = setInterval(function() {
+    orvibo.listen();
+    orvibo.addDevice(device);
+    orvibo.subscribe(device);
+
+
+    subscriber = setInterval(function() {
       orvibo.subscribe(device);
     }, TEN_MINS);
 
@@ -36,7 +43,7 @@ function registerOrviboNodes(RED) {
 
     // Define config node event listeners
     node.on("close", function(done){
-      clearInterval(subscriber);
+      if (subscriber) clearInterval(subscriber);
       node.remote = null;
       done();
     });
