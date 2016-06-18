@@ -2,8 +2,19 @@ var Orvibo = require('node-orvibo');
 var TEN_MINS = 600000;
 
 function registerOrviboNodes(RED) {
-  var orvibo = new Orvibo();
-  orvibo.listen();
+
+  // NOTE: major flaw in node-orvibo's design is that you can't un-listen or dispose!
+  // It actually calls socket.bind on a static object shared between all orvibo
+  // instances, and this socket is shared between all.
+  // So, we will call listen on an Orvibo instance, then dispose immediately.
+  // The static socket will still be bound to and listening in the background.
+  // Note: this will still cause memory leaks as the constructor calls .on
+  // and there is no way to call removeListener, so every "new Orvibo" will
+  // stay resident in memory forever!
+  // NOTE: you also cannot use the same Orvibo instance forever. It stops working
+  // after a while, calling subscribe again does nothing. Calling listen again throws
+  // and address in use error. Creating a new Orvibo instance works.
+  new Orvibo().listen();
 
   /* ---------------------------------------------------------------------------
    * CONFIG node
@@ -27,25 +38,24 @@ function registerOrviboNodes(RED) {
       icon: '00'
     };
 
-    orvibo.addDevice(device);
-    orvibo.subscribe(device);
-
-    subscriber = setInterval(function() {
-      orvibo.subscribe(device);
-    }, TEN_MINS);
+    // Add the device then dispose. We will create a new instance each call.
+    new Orvibo().addDevice(device);
 
     // Define functions called by nodes
     var node = this;
-    this.emitIR = function (irCode) {
-      orvibo.emitIR(device, irCode);
-    };
 
-    // Define config node event listeners
-    node.on("close", function(done){
-      if (subscriber) clearInterval(subscriber);
-      node.remote = null;
-      done();
-    });
+    this.emitIR = function (irCode) {
+      // Note: because of the way node-orvibo works this will cause memory leaks
+      var orvibo = new Orvibo();
+      function subcribeHandler(_device) {
+        if (device.macAddress !== _device.macAddress) return;
+        orvibo.removeListener('subscribed', subcribeHandler);
+        orvibo.emitIR(device, irCode);
+        orvibo = null;
+      }
+      orvibo.on('subscribed', subcribeHandler);
+      orvibo.subscribe(device);
+    };
   }
   RED.nodes.registerType("orvibo", OrviboNodeConfig);
 
